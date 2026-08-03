@@ -47,7 +47,11 @@ jobs:
           ORG: XimaArgentina
           PROJECT_NUMBER: '1'
           # Repos cuyos issues van al tablero. Agregar acá cuando nazca un producto.
-          DEFAULT_REPOS: 'xiagenda xnomina'
+          # `ops` es el repo del trabajo que no vive en un repo de producto (onboarding
+          # de clientes, proveedores, marketing, legales). Existe porque los draft
+          # issues del Project NO soportan labels, y sin labels ese trabajo no entra
+          # en la cola de la IA (`label:ready`) ni lo puede tomar /tomar.
+          DEFAULT_REPOS: 'xiagenda xnomina ops'
         shell: bash
         run: |
           set -uo pipefail
