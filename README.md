@@ -37,9 +37,11 @@ específicos de su código. El contrato transversal (ramas, commits, tickets) es
 Es idempotente y **destructivo por diseño**: borra de los repos cualquier label que no esté en
 el manifiesto. Editar labels a mano en la UI es un no-op: se revierte en el próximo sync.
 
-El workflow `sync-labels.yml` lo corre solo cuando cambia el manifiesto. Necesita el secret
-`ORG_ADMIN_TOKEN` (PAT con scope `repo` + `admin:org`) para alcanzar a los demás repos; sin él
-sólo toca este repo y deja un warning.
+El workflow `sync-labels.yml` lo corre solo cuando cambia el manifiesto. Usa el secret de
+organización `PROJECTS_TOKEN` (el mismo del tablero: scope `repo` + `project`), porque el
+`GITHUB_TOKEN` de Actions no puede escribir labels en otros repos. Si el secret falta, sale con
+un warning sin hacer nada: **ningún workflow de este repo debe fallar por un problema de
+configuración.**
 
 ## Por qué 11 labels y no 40
 

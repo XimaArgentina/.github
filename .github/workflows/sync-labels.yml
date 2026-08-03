@@ -11,9 +11,10 @@ on:
   push:
     branches: [main]
     paths:
+      # A propósito NO incluye este archivo: si se dispara al editarse a sí mismo,
+      # cada retoque del workflow ejecuta una sincronización que nadie pidió.
       - '.github/labels.json'
       - '.github/scripts/sync-labels.sh'
-      - '.github/workflows/sync-labels.yml'
   workflow_dispatch:
     inputs:
       repos:
@@ -36,13 +37,15 @@ jobs:
 
       - name: Sync
         env:
-          # Necesita alcance sobre TODOS los repos de la org, así que el
-          # GITHUB_TOKEN del repo no alcanza. Ver README de este repo.
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
+          # Reusa el MISMO PAT que el tablero (scope `repo` + `project`): las labels
+          # viven en todos los repos de la org, así que el GITHUB_TOKEN del repo no
+          # alcanza (403). Un solo secreto para toda la automatización, no dos.
+          GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
         run: |
-          set -euo pipefail
-          if [ -z "${{ secrets.ORG_ADMIN_TOKEN }}" ]; then
-            echo "::warning::Falta el secret ORG_ADMIN_TOKEN — sólo puedo tocar este repo."
+          set -uo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::warning::Falta el secret PROJECTS_TOKEN — no puedo tocar labels. Salgo sin hacer nada."
+            exit 0
           fi
           chmod +x .github/scripts/sync-labels.sh
           .github/scripts/sync-labels.sh ${{ inputs.repos }}
