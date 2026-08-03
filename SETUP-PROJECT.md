@@ -54,17 +54,18 @@ Las labels quedaron sólo con lo que tiene que ser filtrable **desde afuera del 
 
 ## Vistas
 
-Ya creadas por el script, con su filtro y sus columnas. Cada una tiene un dueño: una vista que
-nadie abre es deuda. **Falta ponerle `Group by` / `Sort by` a mano** (la columna de la derecha).
+El script crea nombre, layout, filtro y columnas visibles. El `Group by` / `Sort by` **no está
+en la API** y se puso a mano (queda persistido; si recreás el project, hay que rehacerlo).
+Cada vista tiene un dueño: una vista que nadie abre es deuda.
 
-| Vista | Dueño | Filtro | A mano |
+| Vista | Dueño | Filtro | Group / Sort |
 |---|---|---|---|
-| **📥 Inbox** | la IA | `is:open label:triage` | Sort `Created` ↑ |
-| **🤖 Cola de la IA** | Claude Code | `is:open label:ready -label:blocked no:assignee` | Group by `Prioridad` · Sort `Created` ↑ |
-| **🎯 Tablero** | el dueño | `is:open -status:Descartado` | Group by `Status` |
-| **🧪 Para validar** | los testers | `status:"A validar"` | Sort `Updated` ↑ |
-| **🚧 Trabado** | el dueño | `is:open label:blocked,needs-info` | Sort `Updated` ↑ |
-| **🗺️ Mapa por área** | el dueño | `is:open` | Group by `Área` · Sort `Prioridad` |
+| **📥 Inbox** | la IA | `is:open label:triage` | — · `Created` ↑ |
+| **🤖 Cola de la IA** | Claude Code | `is:open label:ready -label:blocked no:assignee` | `Prioridad` · `Created` ↑ |
+| **🎯 Tablero** | el dueño | `is:open -status:Descartado` | `Status` · — |
+| **🧪 Para validar** | los testers | `status:"A validar"` | — · `Updated` ↑ |
+| **🚧 Trabado** | el dueño | `is:open label:blocked,needs-info` | — · `Updated` ↑ |
+| **🗺️ Mapa por área** | el dueño | `is:open` | `Área` · `Prioridad` ↑ |
 
 Por qué cada una:
 
@@ -86,33 +87,43 @@ Por qué cada una:
 
 ## Automatizaciones del Project (`⋯ → Workflows`)
 
-**No hay API para crear ni configurar workflows del tablero** (`deleteProjectV2Workflow` existe,
-crear/actualizar no). Este bloque es el único trabajo manual real.
-
-El template ya dejó **6 activos**: `Item added to project`, `Item closed`, `Auto-close issue`,
-`Auto-add sub-issues to project`, `Pull request linked to issue`, `Pull request merged`. Como el
-script preservó los IDs de las opciones de `Status`, siguen enganchados — pero **abrí cada uno y
-confirmá a qué columna apunta ahora**, porque los nombres cambiaron:
-
-| Workflow | Tiene que quedar en | Por qué |
-|---|---|---|
-| **Item added to project** | `Status` = `Inbox` | Todo entra por un solo lugar. |
-| **Item closed** | `Status` = `Hecho` | Cerrar en GitHub y cerrar en el tablero son el mismo acto. |
-| **Pull request merged** | *desactivar* | Lo maneja `ticket-flow.yml`, que distingue dev / staging / main. Dejar los dos pisándose es la única forma de que el tablero mienta. |
-| **Pull request linked to issue** | `Status` = `En curso` | Hay rama y PR: alguien está trabajando. |
-
-Y **crear estos tres**, que no vienen:
+**No hay API para crear ni configurar workflows del tablero** (`deleteProjectV2Workflow` existe;
+crear y actualizar, no). Se configuraron a mano. Estado actual — **8 activos**:
 
 | Workflow | Configuración | Por qué |
 |---|---|---|
-| **Auto-add to project** | uno por repo: `xiagenda` y `xnomina` · filtro `is:issue` | Nadie tiene que acordarse de agregar la tarjeta. Si depende de que alguien la agregue, el tablero miente. **Es el más importante de los tres.** |
+| **Auto-add to project** | repo `xiagenda` · filtro `is:issue` | Nadie tiene que acordarse de agregar la tarjeta. Si depende de que alguien la agregue, el tablero miente. |
+| **Item added to project** | `Status` = `Inbox` | Todo entra por un solo lugar. |
 | **Item reopened** | `Status` = `Listo` | Un issue reabierto es trabajo pendiente, no algo para analizar de cero. |
-| **Auto-archive items** | `status:Hecho updated:<@today-30d` | Lo que mantiene el tablero rápido con cientos de issues. Archivar no borra: el issue sigue en el repo. |
+| **Pull request linked to issue** | `Status` = `En curso` | Hay rama y PR: alguien está trabajando. |
+| **Item closed** | `Status` = `Hecho` | Cerrar en GitHub y cerrar en el tablero son el mismo acto. |
+| **Auto-close issue** | `Status` = `Hecho` → cerrar | El inverso: arrastrar una tarjeta a Hecho cierra el issue. |
+| **Auto-archive items** | `is:issue is:closed updated:<@today-1m` | Lo que mantiene el tablero rápido con cientos de issues. Archivar no borra: el issue sigue en el repo. |
+| **Auto-add sub-issues** | por defecto | Un `epic` arrastra a sus hijos al tablero. |
+
+**Desactivados a propósito**: `Pull request merged` (lo maneja `ticket-flow.yml`, que distingue
+dev / staging / main — dejar los dos pisándose es la forma más rápida de que el tablero mienta),
+`Code review approved` y `Code changes requested` (con un solo implementador no dicen nada).
+
+> Al renombrar las opciones de `Status` el script preservó los IDs de `Todo`/`In progress`/`Done`,
+> así que `Item added`, `Item closed` y `Pull request linked` quedaron apuntando solos a
+> `Inbox` / `Hecho` / `En curso`. Verificado uno por uno.
+
+### El límite del plan Free (y por qué existe `project-sweep.yml`)
+
+**El plan Free permite UN solo workflow `Auto-add to project` por Project**
+(`Maximum number of auto-add workflows reached`). Ese cupo está usado por `xiagenda`.
+
+Sin nada más, los issues de **xnomina** —y de cualquier repo que sumemos— nunca aparecerían en el
+tablero. Un tablero incompleto es peor que no tener tablero: te hace creer que ya miraste todo.
+
+La solución es `.github/workflows/project-sweep.yml`: cada 15 minutos, en el runner self-hosted,
+busca `-project:XimaArgentina/1` en cada repo de la lista y agrega lo que falte. Es idempotente,
+no gasta minutos de Actions, y **escala sin tocar el plan**: repo nuevo = una palabra más en
+`DEFAULT_REPOS`.
 
 El resto del movimiento (`En revisión` → `A validar` → `Hecho`) lo hace `ticket-flow.yml` en cada
 repo de producto, a partir del `Closes #N` del PR. Ver abajo.
-
-> **Auto-add** sólo acepta un repo por workflow: hay que crear uno por repo.
 
 ---
 

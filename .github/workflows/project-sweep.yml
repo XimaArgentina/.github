@@ -1,0 +1,84 @@
+name: Project sweep
+
+# Mete al tablero todo issue que no esté.
+#
+# Por qué existe: el plan Free permite **un solo** workflow "Auto-add to project"
+# por Project ("Maximum number of auto-add workflows reached"). Ese único cupo está
+# usado por `xiagenda`. Sin esto, los issues de xnomina —y de cualquier repo que
+# agreguemos— nunca aparecerían en el tablero, y un tablero incompleto es peor que
+# no tener tablero: te hace creer que ya miraste todo.
+#
+# Barre cada 15 minutos en el runner self-hosted (cero minutos de Actions). Es
+# idempotente: `addProjectV2ItemById` sobre algo que ya está no hace nada.
+#
+# Requiere el secret de organización PROJECTS_TOKEN (PAT clásico con scope
+# `project` + `repo`): los tokens de Actions no pueden escribir en Projects v2.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      repos:
+        description: 'Repos separados por espacio (vacío = los de la lista de abajo)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-sweep
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: [self-hosted, xima-dev]
+    steps:
+      - name: Sweep
+        env:
+          GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+          ORG: XimaArgentina
+          PROJECT_NUMBER: '1'
+          # Repos cuyos issues van al tablero. Agregar acá cuando nazca un producto.
+          DEFAULT_REPOS: 'xiagenda xnomina'
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::warning::Falta el secret PROJECTS_TOKEN — no puedo escribir en el tablero."
+            exit 0
+          fi
+
+          REPOS="${{ inputs.repos }}"
+          [ -z "$REPOS" ] && REPOS="$DEFAULT_REPOS"
+
+          PID=$(gh api graphql -f query='query($o:String!,$n:Int!){organization(login:$o){projectV2(number:$n){id}}}' \
+                -f o="$ORG" -F n="$PROJECT_NUMBER" --jq '.data.organization.projectV2.id')
+          if [ -z "$PID" ] || [ "$PID" = "null" ]; then
+            echo "::error::No pude resolver el project #$PROJECT_NUMBER de $ORG"; exit 1
+          fi
+
+          total=0
+          for repo in $REPOS; do
+            # `-project:` es un qualifier de búsqueda de GitHub: devuelve lo que NO
+            # está en el tablero. Así el barrido es O(faltantes), no O(issues).
+            missing=$(gh issue list -R "$ORG/$repo" --state all --limit 200 \
+                        --search "-project:$ORG/$PROJECT_NUMBER" --json id,number 2>/dev/null)
+            [ -z "$missing" ] && continue
+            count=$(jq 'length' <<<"$missing")
+            [ "$count" = "0" ] && { echo "$repo: al día"; continue; }
+
+            echo "$repo: $count issue(s) fuera del tablero"
+            jq -r '.[] | "\(.id) \(.number)"' <<<"$missing" | while read -r nodeid num; do
+              if gh api graphql -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{projectId:$p,contentId:$c}){item{id}}}' \
+                   -f p="$PID" -f c="$nodeid" >/dev/null 2>&1; then
+                echo "   + $repo#$num"
+              else
+                echo "::warning::no pude agregar $repo#$num"
+              fi
+            done
+            total=$((total + count))
+          done
+          echo "Barrido listo."
