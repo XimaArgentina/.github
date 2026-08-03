@@ -1,7 +1,7 @@
 [
   {"name":"bug","color":"d73a4a","description":"Algo no funciona como deberia"},
   {"name":"feat","color":"0e8a16","description":"Capacidad nueva o mejora de una existente"},
-  {"name":"chore","color":"9aa0a6","description":"Trabajo tecnico interno: refactor, deps, infra, tests"},
+  {"name":"chore","color":"9aa0a6","description":"Trabajo interno sin cara de usuario: refactor, deps, infra, tests, gestiones operativas"},
   {"name":"docs","color":"0075ca","description":"Documentacion, textos o contenido"},
   {"name":"epic","color":"5319e7","description":"Contenedor: se cierra cuando cierran sus sub-issues"},
   {"name":"triage","color":"fbca04","description":"Reporte en bruto: la IA todavia no lo normalizo"},
