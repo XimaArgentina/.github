@@ -117,10 +117,15 @@ dev / staging / main — dejar los dos pisándose es la forma más rápida de qu
 Sin nada más, los issues de **xnomina** —y de cualquier repo que sumemos— nunca aparecerían en el
 tablero. Un tablero incompleto es peor que no tener tablero: te hace creer que ya miraste todo.
 
-La solución es `.github/workflows/project-sweep.yml`: cada 15 minutos, en el runner self-hosted,
-busca `-project:XimaArgentina/1` en cada repo de la lista y agrega lo que falte. Es idempotente,
-no gasta minutos de Actions, y **escala sin tocar el plan**: repo nuevo = una palabra más en
-`DEFAULT_REPOS`.
+La solución es `.github/workflows/project-sweep.yml`: cada 15 minutos busca
+`-project:XimaArgentina/1` en cada repo de la lista y agrega lo que falte. Es idempotente y
+**escala sin tocar el plan**: repo nuevo = una palabra más en `DEFAULT_REPOS`.
+
+Corre en runner **hosteado**, no en el self-hosted del dev box: este repo es público y Actions es
+gratis e ilimitado para repos públicos, así que no toca el presupuesto de minutos. Además los
+runner groups self-hosted traen `allows_public_repositories: false` — y está bien que así sea:
+es lo que evita que un fork corra código en la máquina de casa. Los workflows de los repos
+privados de producto (`ticket-flow.yml`) sí van al self-hosted.
 
 El resto del movimiento (`En revisión` → `A validar` → `Hecho`) lo hace `ticket-flow.yml` en cada
 repo de producto, a partir del `Closes #N` del PR. Ver abajo.

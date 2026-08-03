@@ -3,8 +3,9 @@ name: Sync labels
 # Las labels son código: la fuente de verdad es .github/labels.json.
 # Editar labels a mano en la UI de un repo se revierte en el próximo run.
 #
-# Corre en el runner self-hosted (el dev box) para no gastar minutos de Actions:
-# el presupuesto de la org es chico y el pipeline ya es ~100% self-hosted.
+# Corre en runner hosteado: este repo es público y Actions es gratis e ilimitado
+# para repos públicos, así que no toca el presupuesto de minutos de la org. Los
+# runners self-hosted quedan para los repos privados de producto.
 
 on:
   push:
@@ -29,7 +30,7 @@ concurrency:
 
 jobs:
   sync:
-    runs-on: [self-hosted, xima-dev]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 

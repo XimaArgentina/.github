@@ -8,8 +8,14 @@ name: Project sweep
 # agreguemos— nunca aparecerían en el tablero, y un tablero incompleto es peor que
 # no tener tablero: te hace creer que ya miraste todo.
 #
-# Barre cada 15 minutos en el runner self-hosted (cero minutos de Actions). Es
-# idempotente: `addProjectV2ItemById` sobre algo que ya está no hace nada.
+# Barre cada 15 minutos. Es idempotente: `addProjectV2ItemById` sobre algo que ya
+# está no hace nada.
+#
+# Corre en runner HOSTEADO, no en el self-hosted del dev box: este repo es público
+# y Actions es gratis e ilimitado para repos públicos. Además los runner groups
+# self-hosted tienen `allows_public_repositories: false` por defecto — y está bien
+# que así sea: es lo que evita que un fork corra código en la máquina de casa.
+# Los workflows de los repos de producto (privados) sí van al self-hosted.
 #
 # Requiere el secret de organización PROJECTS_TOKEN (PAT clásico con scope
 # `project` + `repo`): los tokens de Actions no pueden escribir en Projects v2.
@@ -33,7 +39,7 @@ concurrency:
 
 jobs:
   sweep:
-    runs-on: [self-hosted, xima-dev]
+    runs-on: ubuntu-latest
     steps:
       - name: Sweep
         env:
