@@ -1,0 +1,43 @@
+name: 🗣️ Contalo como salga
+description: Lo viste, no sabés si es bug o mejora, y no querés pensar en formato. Empezá por acá.
+labels: ["triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Este es el camino recomendado.** Escribí como le hablarías a un compañero.
+        Una IA lo va a leer, lo va a reescribir prolijo, le va a poner etiquetas y lo va a
+        poner en el tablero. Vos no tenés que ordenar nada.
+
+        En el **título** poné una frase corta y seguí. No importa si queda fea: se reescribe.
+
+  - type: textarea
+    id: que_paso
+    attributes:
+      label: ¿Qué pasó?
+      description: |
+        Todo lo que tengas. Pegá capturas (arrastralas acá), mensajes de WhatsApp, el texto
+        del error, lo que sea. Cuanto más crudo, mejor: no resumas.
+      placeholder: |
+        Estaba cargando un turno para una paciente nueva y cuando le di a guardar
+        se quedó girando como 20 segundos y después me tiró una pantalla blanca.
+        Volví atrás y el turno estaba cargado igual, pero dos veces.
+    validations:
+      required: true
+
+  - type: input
+    id: donde
+    attributes:
+      label: ¿Dónde lo viste?
+      description: La URL de la barra del navegador, o el nombre de la pantalla. Es el dato que más ayuda a la IA a encontrar el código.
+      placeholder: https://app.xiagenda.ar/consultorio-x/turnos/create — o "la pantalla de Turnos, botón Nuevo"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: bloquea
+    attributes:
+      label: Gravedad
+      options:
+        - label: Esto me impide seguir trabajando / un cliente está frenado por esto
+          required: false

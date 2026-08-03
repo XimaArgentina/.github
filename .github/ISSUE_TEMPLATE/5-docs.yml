@@ -1,0 +1,37 @@
+name: 📝 Documentación / contenido
+description: Un texto de la app, una guía del Centro de Ayuda, o un doc interno que está mal o falta.
+labels: ["docs"]
+body:
+  - type: input
+    id: donde
+    attributes:
+      label: Dónde
+      description: URL de la página, ruta del archivo, o el texto exacto que aparece en pantalla.
+      placeholder: https://xiagenda.ar/ayuda/como-cargar-un-turno — o el cartel "Turno confirmado" del panel
+    validations:
+      required: true
+
+  - type: textarea
+    id: que_falta
+    attributes:
+      label: Qué está mal o qué falta
+      description: Y sobre todo — qué se entiende mal hoy por culpa de eso.
+      placeholder: |
+        La guía no dice que hay que verificar el número de WhatsApp antes de invitar pacientes,
+        así que la clienta invitó a 30 y no le llegó a ninguna.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: publico
+    attributes:
+      label: ¿Para quién es ese texto?
+      description: |
+        Define el tono, el idioma y dónde vive el cambio (copy de la app en `lang/`, guía
+        pública del Centro de Ayuda, o doc interno del repo).
+      options:
+        - Paciente / empleado final
+        - Cliente que nos paga (dueño de consultorio / empresa)
+        - Equipo interno y agentes de IA
+    validations:
+      required: true

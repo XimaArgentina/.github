@@ -1,0 +1,47 @@
+name: Sync labels
+
+# Las labels son código: la fuente de verdad es .github/labels.json.
+# Editar labels a mano en la UI de un repo se revierte en el próximo run.
+#
+# Corre en el runner self-hosted (el dev box) para no gastar minutos de Actions:
+# el presupuesto de la org es chico y el pipeline ya es ~100% self-hosted.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/labels.json'
+      - '.github/scripts/sync-labels.sh'
+      - '.github/workflows/sync-labels.yml'
+  workflow_dispatch:
+    inputs:
+      repos:
+        description: 'Repos separados por espacio (vacío = todos los de la org)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-labels
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: [self-hosted, xima-dev]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync
+        env:
+          # Necesita alcance sobre TODOS los repos de la org, así que el
+          # GITHUB_TOKEN del repo no alcanza. Ver README de este repo.
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${{ secrets.ORG_ADMIN_TOKEN }}" ]; then
+            echo "::warning::Falta el secret ORG_ADMIN_TOKEN — sólo puedo tocar este repo."
+          fi
+          chmod +x .github/scripts/sync-labels.sh
+          .github/scripts/sync-labels.sh ${{ inputs.repos }}

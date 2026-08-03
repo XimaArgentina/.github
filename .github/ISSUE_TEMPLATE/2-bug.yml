@@ -1,0 +1,77 @@
+name: 🐞 Bug
+description: Algo funciona mal y ya sabés reproducirlo.
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Si no tenés los pasos exactos, no fuerces: usá **🗣️ Contalo como salga**.
+        Este formulario existe para cuando ya sabés cómo hacerlo pasar de nuevo.
+
+  - type: textarea
+    id: que_pasa
+    attributes:
+      label: Qué pasa
+      description: El comportamiento que ves, sin interpretarlo.
+      placeholder: Al guardar el turno, la pantalla queda en blanco y el turno se crea duplicado.
+    validations:
+      required: true
+
+  - type: textarea
+    id: que_esperabas
+    attributes:
+      label: Qué esperabas que pasara
+      description: |
+        Parece obvio, pero no lo es. Esta es la línea que evita que la IA "arregle" otra cosa:
+        separa lo que viste de lo que debería ser.
+      placeholder: Que guardara UN turno y volviera al listado con el cartel de confirmación.
+    validations:
+      required: true
+
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducirlo
+      description: Numerados, desde el login. De acá sale el test automático que evita que vuelva a pasar.
+      placeholder: |
+        1. Entrar como secretaria a app.xiagenda.ar/consultorio-x
+        2. Turnos → Nuevo
+        3. Elegir paciente que NO existe todavía y cargar nombre + teléfono
+        4. Elegir horario de mañana 10:00
+        5. Guardar
+    validations:
+      required: true
+
+  - type: input
+    id: donde
+    attributes:
+      label: URL exacta + con qué usuario estabas
+      description: |
+        El rol importa tanto como la URL: el sistema es multi-consultorio y con permisos,
+        así que el mismo botón hace cosas distintas según quién sos.
+      placeholder: https://app.xiagenda.ar/suarez-podologia/turnos/create — usuaria "recepcion@..." (rol Secretaria)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: entorno
+    attributes:
+      label: Dónde lo viste
+      description: Define la urgencia y de qué rama sale el arreglo. No lo saltees.
+      options:
+        - Producción (clientes reales)
+        - Staging (validación)
+        - Local / entorno de desarrollo
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: Evidencia
+      description: |
+        Capturas (arrastralas acá), el texto del error tal cual, la hora aproximada.
+        Con la hora + el usuario alcanza para encontrarlo en los logs y en Sentry.
+      placeholder: Pasó como 15:40 del martes. Decía "Server Error 500".
+    validations:
+      required: false

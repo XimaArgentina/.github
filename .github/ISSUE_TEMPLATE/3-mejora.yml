@@ -1,0 +1,55 @@
+name: 💡 Mejora / idea
+description: Funciona, pero podría ser mejor. O falta algo.
+labels: ["feat", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Contá el problema, no la solución.** Si nos das la solución nos quedamos con la primera
+        que se te ocurrió; si nos das el problema, la IA propone tres y elegimos la mejor.
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: ¿Qué problema real tenés hoy?
+      description: Qué te cuesta, cuánto te cuesta, y cada cuánto te pasa.
+      placeholder: |
+        Cada vez que una paciente pide cambiar el turno por WhatsApp tengo que buscarla a mano
+        en el listado porque no me acuerdo el apellido exacto. Me pasa 5 o 6 veces por día y
+        pierdo un par de minutos cada vez.
+    validations:
+      required: true
+
+  - type: input
+    id: workaround
+    attributes:
+      label: ¿Cómo lo resolvés hoy?
+      description: Si ya tenés un truco o un rodeo, contalo. Nos dice cuánto duele de verdad.
+      placeholder: Busco por teléfono en el buscador general y después entro a la ficha.
+    validations:
+      required: false
+
+  - type: textarea
+    id: criterio
+    attributes:
+      label: ¿Cómo nos daríamos cuenta de que quedó bien?
+      description: |
+        Contalo como si estuvieras probándolo. Esto se convierte tal cual en el criterio de
+        aceptación y en lo que vas a validar vos cuando esté listo.
+      placeholder: |
+        Escribo "mari" en el buscador de turnos y me aparecen las pacientes que se llaman
+        María, con el teléfono al lado, sin tener que salir de la pantalla de turnos.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: quien
+    attributes:
+      label: ¿A quién le sirve?
+      description: Es lo que define la prioridad. Un dolor del cliente que paga gana casi siempre.
+      options:
+        - Al paciente / empleado final (el que usa WhatsApp o el portal)
+        - Al cliente que nos paga (consultorio / empresa)
+        - A nosotros (equipo interno)
+    validations:
+      required: true

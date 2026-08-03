@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔥 Se cayó producción / hay un cliente bloqueado
+    url: https://github.com/XimaArgentina/.github/blob/main/CONTRIBUTING.md#urgencias
+    about: No abras un issue primero. Avisá por WhatsApp al dueño y DESPUÉS abrí el issue con la etiqueta urgente.
+  - name: ❓ No sé si esto es un bug o una mejora
+    url: https://github.com/XimaArgentina/.github/blob/main/CONTRIBUTING.md#contalo-como-salga
+    about: Usá "Contalo como salga". La IA lo clasifica; no es tu trabajo decidirlo.

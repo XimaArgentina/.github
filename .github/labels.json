@@ -1,0 +1,13 @@
+[
+  {"name":"bug","color":"d73a4a","description":"Algo no funciona como deberia"},
+  {"name":"feat","color":"0e8a16","description":"Capacidad nueva o mejora de una existente"},
+  {"name":"chore","color":"9aa0a6","description":"Trabajo tecnico interno: refactor, deps, infra, tests"},
+  {"name":"docs","color":"0075ca","description":"Documentacion, textos o contenido"},
+  {"name":"epic","color":"5319e7","description":"Contenedor: se cierra cuando cierran sus sub-issues"},
+  {"name":"triage","color":"fbca04","description":"Reporte en bruto: la IA todavia no lo normalizo"},
+  {"name":"ready","color":"00c2a8","description":"Spec completa: Claude Code puede implementarlo sin preguntar"},
+  {"name":"needs-info","color":"d93f0b","description":"Falta un dato que solo un humano puede dar"},
+  {"name":"blocked","color":"24292f","description":"Depende de algo externo: proveedor, decision u otro issue"},
+  {"name":"urgente","color":"b60205","description":"Prod roto o cliente bloqueado: se toma ahora"},
+  {"name":"regression","color":"e99695","description":"Antes funcionaba y dejo de funcionar"}
+]

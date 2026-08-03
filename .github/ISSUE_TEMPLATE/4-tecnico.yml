@@ -1,0 +1,60 @@
+name: 🔧 Tarea técnica
+description: Refactor, deuda, infra, dependencias, tests. No la usan los testers.
+labels: ["chore"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Formulario para el dueño y para la IA. Un tester nunca debería tener que abrir esto.
+        Si vas a completarlo con una IA, pedile que sea **específica en el alcance**: es el
+        campo que evita que la tarea se desborde.
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo y por qué ahora
+      description: Qué queremos lograr, y qué se desbloquea cuando esté hecho.
+      placeholder: |
+        Extraer el cálculo de disponibilidad a un servicio propio: hoy está duplicado en el
+        picker y en el tool del agente, y ya divergieron una vez (D-1xx).
+    validations:
+      required: true
+
+  - type: textarea
+    id: alcance
+    attributes:
+      label: Alcance — qué toca y qué NO toca
+      description: |
+        Módulos/archivos dentro del alcance, y explícitamente lo que queda afuera.
+        Sin este campo la IA amplía el alcance sola y el PR se vuelve irrevisable.
+      placeholder: |
+        TOCA: app/Services/Availability/*, app/Ai/Tools/FindSlots.php, los tests de ambos.
+        NO TOCA: el schema de la base, el picker del panel (misma API pública), nada de pagos.
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterio
+    attributes:
+      label: Cómo se verifica
+      description: El comando o el test que tiene que pasar. Si no hay forma de verificarlo, no está listo para tomarse.
+      placeholder: |
+        infra/xiagenda --env=localN test --filter=Availability   (verde, sin tests nuevos rotos)
+        + test nuevo que prueba que el tool y el picker devuelven los mismos slots.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: riesgo
+    attributes:
+      label: Zona de riesgo
+      description: |
+        Si es algo más que "bajo", la IA tiene que tomar la opción conservadora y marcar
+        `[REVISAR-CRÍTICO]` en vez de decidir sola.
+      options:
+        - Bajo — no toca datos, plata ni permisos
+        - Toca datos de clientes o migraciones
+        - Toca pagos / facturación
+        - Toca seguridad, permisos o aislamiento entre tenants
+    validations:
+      required: true
