@@ -30,7 +30,7 @@ body:
     attributes:
       label: ¿Dónde lo viste?
       description: La URL de la barra del navegador, o el nombre de la pantalla. Es el dato que más ayuda a la IA a encontrar el código.
-      placeholder: https://app.xiagenda.ar/consultorio-x/turnos/create — o "la pantalla de Turnos, botón Nuevo"
+      placeholder: https://app.xiagenda.ar/consultorio-demo/turnos/create — o "la pantalla de Turnos, botón Nuevo"
     validations:
       required: false
 

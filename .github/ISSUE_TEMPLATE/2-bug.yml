@@ -49,7 +49,7 @@ body:
       description: |
         El rol importa tanto como la URL: el sistema es multi-consultorio y con permisos,
         así que el mismo botón hace cosas distintas según quién sos.
-      placeholder: https://app.xiagenda.ar/suarez-podologia/turnos/create — usuaria "recepcion@..." (rol Secretaria)
+      placeholder: https://app.xiagenda.ar/consultorio-demo/turnos/create — usuaria "recepcion@ejemplo.test" (rol Secretaria)
     validations:
       required: true
 
