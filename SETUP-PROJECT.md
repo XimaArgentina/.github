@@ -4,9 +4,18 @@ Un solo Project de organización para todo el ecosistema. Los issues viven en el
 producto (ahí es donde un `Closes #N` cierra solo y donde una IA tiene el código al lado); el
 tablero es la única vista transversal.
 
-**Campos**: `.github/scripts/setup-project.sh` (idempotente, corré cuando quieras).
-**Vistas y automatizaciones**: a mano — la API de Projects v2 no expone mutaciones para
-ninguna de las dos. Es 10 minutos, una sola vez.
+**Campos y vistas**: `.github/scripts/setup-project.sh` (idempotente, corré cuando quieras).
+Crea y actualiza los campos con sus opciones y colores, y las 6 vistas con su nombre, layout,
+filtro y columnas visibles.
+
+**Lo único que queda a mano** (la API de Projects v2 no lo expone): el *group by* y el *sort by*
+de cada vista, y los workflows del tablero. Son ~5 minutos, una sola vez.
+
+> Dos rarezas de la API, por si el script parece hacer cosas de más:
+> - El campo `Priority` que trae el template **no se puede actualizar** (`Only custom fields can
+>   be updated`). El script lo borra y crea `Prioridad` propio.
+> - Al renombrar las opciones de `Status` se **preservan los IDs** de `Todo`/`In progress`/`Done`
+>   → los workflows que ya venían activos siguen enganchados en vez de quedar huérfanos.
 
 ---
 
@@ -43,62 +52,65 @@ Las labels quedaron sólo con lo que tiene que ser filtrable **desde afuera del 
 
 ---
 
-## Vistas (crear a mano — `+ New view`)
+## Vistas
 
-Cada vista tiene un dueño. Una vista que nadie abre es deuda.
+Ya creadas por el script, con su filtro y sus columnas. Cada una tiene un dueño: una vista que
+nadie abre es deuda. **Falta ponerle `Group by` / `Sort by` a mano** (la columna de la derecha).
 
-### 1. 📥 Inbox — *dueño: la IA*
-- **Layout** Table · **Filter** `is:open label:triage` · **Sort** `Created` ascendente
-- **Campos visibles** Title, Repository, Assignees, Created
-- Es la cola de `/triage`. Debería estar vacía casi siempre; si crece, el triage no está corriendo.
+| Vista | Dueño | Filtro | A mano |
+|---|---|---|---|
+| **📥 Inbox** | la IA | `is:open label:triage` | Sort `Created` ↑ |
+| **🤖 Cola de la IA** | Claude Code | `is:open label:ready -label:blocked no:assignee` | Group by `Prioridad` · Sort `Created` ↑ |
+| **🎯 Tablero** | el dueño | `is:open -status:Descartado` | Group by `Status` |
+| **🧪 Para validar** | los testers | `status:"A validar"` | Sort `Updated` ↑ |
+| **🚧 Trabado** | el dueño | `is:open label:blocked,needs-info` | Sort `Updated` ↑ |
+| **🗺️ Mapa por área** | el dueño | `is:open` | Group by `Área` · Sort `Prioridad` |
 
-### 2. 🤖 Cola de la IA — *dueño: Claude Code*
-- **Layout** Table · **Filter** `is:open label:ready -label:blocked no:assignee`
-- **Group by** `Prioridad` · **Sort** `Created` ascendente
-- **Campos** Title, Producto, Área, Tamaño IA, Repository
-- **La vista más importante del tablero.** Es literalmente lo que Claude Code lee para decidir
-  qué hacer. Ordenar por antigüedad dentro de cada prioridad hace que la cola drene en vez de
-  revolverse.
+Por qué cada una:
 
-### 3. 🎯 Tablero — *dueño: el dueño del producto*
-- **Layout** Board · **Group by** `Status`
-- **Filter** `is:open -status:Descartado`
-- **Campos en la tarjeta** Prioridad, Producto, Tamaño IA
-- Filtrar los cerrados es lo que mantiene el tablero legible con cientos de issues. El histórico
-  se consulta con búsqueda, no scrolleando una columna de 400 tarjetas.
-
-### 4. 🧪 Para validar — *dueño: los testers*
-- **Layout** Table · **Filter** `status:"A validar"` · **Sort** `Last updated` ascendente
-- **Campos** Title, Assignees, Producto, Last updated
-- Ordenado por *lo más viejo primero*: lo que lleva más tiempo esperando validación es lo que
-  más riesgo tiene de volver a romperse antes de que alguien lo mire.
-- **Este es el link que se guardan los testers.** Si sólo van a abrir una vista, es esta.
-
-### 5. 🚧 Trabado — *dueño: el dueño del producto*
-- **Layout** Table · **Filter** `is:open label:blocked,needs-info` · **Sort** `Last updated` asc
-- Existe para que nada quede trabado en silencio. Revisarla una vez por semana alcanza.
-
-### 6. 🗺️ Mapa por área — *dueño: el dueño del producto*
-- **Layout** Table · **Filter** `is:open` · **Group by** `Área` · **Sort** `Prioridad`
-- Se abre cuando hay que decidir qué construir, no en el día a día. Un área con 30 issues
-  abiertos casi nunca son 30 problemas: es un problema de fondo mal identificado.
+- **📥 Inbox** — la cola de `/triage`. Debería estar vacía casi siempre; si crece, el triage no
+  está corriendo.
+- **🤖 Cola de la IA** — **la vista más importante del tablero**: es literalmente lo que Claude
+  Code lee para decidir qué hacer. Ordenar por antigüedad *dentro* de cada prioridad hace que la
+  cola drene en vez de revolverse. `no:assignee` evita que dos sesiones tomen lo mismo.
+- **🎯 Tablero** — filtrar los cerrados es lo que lo mantiene legible con cientos de issues. El
+  histórico se consulta con búsqueda, no scrolleando una columna de 400 tarjetas.
+- **🧪 Para validar** — ordenada por *lo más viejo primero*: lo que lleva más tiempo esperando
+  validación es lo que más riesgo tiene de romperse otra vez antes de que alguien lo mire.
+  **Es el link que se guardan los testers**; si sólo van a abrir una vista, es esta.
+- **🚧 Trabado** — para que nada quede trabado en silencio. Una mirada por semana alcanza.
+- **🗺️ Mapa por área** — se abre para decidir qué construir, no en el día a día. Un área con 30
+  issues abiertos casi nunca son 30 problemas: es un problema de fondo mal identificado.
 
 ---
 
 ## Automatizaciones del Project (`⋯ → Workflows`)
 
-Todas vienen desactivadas por defecto. Activá estas cinco:
+**No hay API para crear ni configurar workflows del tablero** (`deleteProjectV2Workflow` existe,
+crear/actualizar no). Este bloque es el único trabajo manual real.
+
+El template ya dejó **6 activos**: `Item added to project`, `Item closed`, `Auto-close issue`,
+`Auto-add sub-issues to project`, `Pull request linked to issue`, `Pull request merged`. Como el
+script preservó los IDs de las opciones de `Status`, siguen enganchados — pero **abrí cada uno y
+confirmá a qué columna apunta ahora**, porque los nombres cambiaron:
+
+| Workflow | Tiene que quedar en | Por qué |
+|---|---|---|
+| **Item added to project** | `Status` = `Inbox` | Todo entra por un solo lugar. |
+| **Item closed** | `Status` = `Hecho` | Cerrar en GitHub y cerrar en el tablero son el mismo acto. |
+| **Pull request merged** | *desactivar* | Lo maneja `ticket-flow.yml`, que distingue dev / staging / main. Dejar los dos pisándose es la única forma de que el tablero mienta. |
+| **Pull request linked to issue** | `Status` = `En curso` | Hay rama y PR: alguien está trabajando. |
+
+Y **crear estos tres**, que no vienen:
 
 | Workflow | Configuración | Por qué |
 |---|---|---|
-| **Auto-add to project** | Repos `xiagenda`, `xnomina` · filtro `is:issue is:open` | Nadie tiene que acordarse de agregar la tarjeta. Si depende de que alguien la agregue, el tablero miente. |
-| **Item added to project** | Set `Status` = `Inbox` | Todo entra por un solo lugar. |
-| **Item reopened** | Set `Status` = `Listo` | Un issue reabierto es trabajo pendiente, no algo por analizar de cero. |
-| **Item closed** | Set `Status` = `Hecho` | Cerrar en GitHub y cerrar en el tablero tienen que ser el mismo acto. |
-| **Auto-archive items** | `status:Hecho updated:<@today-30d` | Lo que mantiene el tablero rápido con cientos de issues. Archivar no borra: sigue en el repo. |
+| **Auto-add to project** | uno por repo: `xiagenda` y `xnomina` · filtro `is:issue` | Nadie tiene que acordarse de agregar la tarjeta. Si depende de que alguien la agregue, el tablero miente. **Es el más importante de los tres.** |
+| **Item reopened** | `Status` = `Listo` | Un issue reabierto es trabajo pendiente, no algo para analizar de cero. |
+| **Auto-archive items** | `status:Hecho updated:<@today-30d` | Lo que mantiene el tablero rápido con cientos de issues. Archivar no borra: el issue sigue en el repo. |
 
-El resto del movimiento (`En revisión` → `A validar` → `Hecho`) lo hace el workflow
-`ticket-flow.yml` de cada repo de producto, a partir del `Closes #N` del PR. Ver más abajo.
+El resto del movimiento (`En revisión` → `A validar` → `Hecho`) lo hace `ticket-flow.yml` en cada
+repo de producto, a partir del `Closes #N` del PR. Ver abajo.
 
 > **Auto-add** sólo acepta un repo por workflow: hay que crear uno por repo.
 
@@ -126,11 +138,11 @@ deja un warning: nunca falla el build.
 gh secret set PROJECTS_TOKEN --org XimaArgentina --visibility all
 ```
 
-Y la URL de staging, para que el comentario le diga al tester dónde probar:
+Las variables ya están puestas (`STAGING_URL` por repo, `PROJECT_TITLE` a nivel org):
 
 ```bash
-gh variable set STAGING_URL --repo XimaArgentina/xiagenda --body "https://…"
-gh variable set PROJECT_TITLE --org XimaArgentina --body "<título exacto del project>"
+gh variable list --org XimaArgentina
+gh variable list --repo XimaArgentina/xiagenda
 ```
 
 ---
