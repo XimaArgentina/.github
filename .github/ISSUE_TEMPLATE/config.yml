@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: 🤖 Prefiero contárselo a una IA (ChatGPT / Claude)
+    url: https://github.com/XimaArgentina/.github/blob/main/REPORTAR-CON-IA.md
+    about: Conectá GitHub a tu IA una sola vez y después le dictás el reporte. Guía de 5 minutos.
   - name: 🔥 Se cayó producción / hay un cliente bloqueado
     url: https://github.com/XimaArgentina/.github/blob/main/CONTRIBUTING.md#urgencias
     about: No abras un issue primero. Avisá por WhatsApp al dueño y DESPUÉS abrí el issue con la etiqueta urgente.

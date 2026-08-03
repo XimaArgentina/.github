@@ -26,6 +26,10 @@ Abrís un issue en el repo del producto que estabas usando:
 
 Guardate esos dos links. Es lo único que tenés que recordar.
 
+> ¿Preferís **dictárselo a una IA** en vez de llenar un formulario? Se puede: conectás GitHub a
+> ChatGPT o Claude una sola vez y después le contás el problema y ella crea el ticket.
+> Guía completa: **[REPORTAR-CON-IA.md](REPORTAR-CON-IA.md)**.
+
 #### Contalo como salga
 
 Elegí **🗣️ Contalo como salga** salvo que ya sepas exactamente cómo reproducir el problema.
