@@ -53,8 +53,29 @@ que lo intente el resto — y si no anda, usá el Camino 1, que es más rápido 
 
 ### 2.b Darle las reglas de la casa a tu IA
 
-Sin esto la IA arma tickets genéricos que después hay que reescribir. **Pegale este texto** al
-empezar (en Claude podés dejarlo fijo como *Project instructions* y no repetirlo nunca más):
+Sin esto la IA arma tickets genéricos que después hay que reescribir. Hay dos maneras de
+dárselas; las dos usan exactamente el mismo texto.
+
+**En Claude — instalá la skill (una sola vez, recomendado):**
+
+1. Descargá [`reportar-xima.zip`](https://github.com/XimaArgentina/.github/raw/main/skill/reportar-xima.zip).
+2. En [claude.ai](https://claude.ai) → **Settings → Capabilities**: activá
+   **"Code execution and file creation"** (si no estaba activo; las skills lo necesitan).
+3. Andá a **Customize → Skills** → **＋ Create skill** → **Upload a skill** → elegí el zip.
+
+Listo. De ahí en más, cuando le cuentes a Claude que algo falló en XIAgenda o XNómina, aplica
+estas reglas solo, en cualquier chat — sin pegar nada. Si alguna vez no la agarra, decile
+«usá la skill reportar-xima». Dos aclaraciones: la skill es **personal** (cada uno sube la
+suya, no se comparte a nivel organización) y **no reemplaza el paso 2.a** — el conector de
+GitHub sigue haciendo falta, porque es el que le da acceso a crear issues.
+
+**En ChatGPT (o si preferís no instalar nada):** pegá el texto de abajo al empezar la
+conversación. Para no repetirlo nunca más, dejalo fijo como instrucciones de un *Project*
+(existen en los dos: *Project instructions* en Claude, instrucciones del proyecto en ChatGPT).
+
+<!-- ⚠️ Mantenimiento: este bloque ````text es la FUENTE de la skill de claude.ai.
+     Si lo editás, corré tools/build-reportar-skill.sh y commiteá skill/ regenerado.
+     El workflow skill-sync.yml falla si quedan desincronizados. -->
 
 ````text
 Sos mi asistente para reportar problemas y mejoras en los productos de xima.

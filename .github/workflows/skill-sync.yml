@@ -1,0 +1,30 @@
+name: Skill sync
+
+# La skill de claude.ai (skill/reportar-xima*) se GENERA desde el bloque de
+# prompt de REPORTAR-CON-IA.md. Este check falla cuando alguien edita un lado
+# y se olvida de regenerar el otro: tools/build-reportar-skill.sh y commit.
+#
+# Corre en runner hosteado: este repo es público y Actions es gratis para
+# repos públicos, así que no toca el presupuesto de minutos de la org.
+
+on:
+  pull_request:
+    paths:
+      - REPORTAR-CON-IA.md
+      - skill/**
+      - tools/build-reportar-skill.sh
+      - .github/workflows/skill-sync.yml
+  push:
+    branches: [main, dev]
+    paths:
+      - REPORTAR-CON-IA.md
+      - skill/**
+      - tools/build-reportar-skill.sh
+      - .github/workflows/skill-sync.yml
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/build-reportar-skill.sh --check
