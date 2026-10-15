@@ -29,6 +29,10 @@ Guardate esos dos links. Es lo único que tenés que recordar.
 > ¿Preferís **dictárselo a una IA** en vez de llenar un formulario? Se puede: conectás GitHub a
 > ChatGPT o Claude una sola vez y después le contás el problema y ella crea el ticket.
 > Guía completa: **[REPORTAR-CON-IA.md](REPORTAR-CON-IA.md)**.
+>
+> Si sos del equipo y querés que tu IA además **conozca el producto** (si algo está
+> implementado, dónde se ve, por qué es así), hay una segunda skill, `conocer-xima`. Vive en
+> el repo privado `xima-infra`, carpeta `sdlc/tester/` (guía: `CONOCER-CON-IA.md` ahí).
 
 #### Contalo como salga
 
