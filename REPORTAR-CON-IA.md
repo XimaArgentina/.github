@@ -143,6 +143,10 @@ Algunos clientes piden un token en vez de OAuth. Si te pasa, creá un
 Ese último punto importa: sin `Contents`, tu IA puede crear y comentar issues pero **no puede
 leer el código fuente**. Es el permiso justo, ni uno más.
 
+> Excepción: si sos del equipo y usás también la skill `conocer-xima` (la que le deja a tu
+> IA leer el código y los docs para explicarte el producto), ese token sí necesita
+> `Contents` = **Read**. Con el login por OAuth no hace falta nada: lee lo que vos podés leer.
+
 Puede que el token quede *pendiente de aprobación* por el dueño de la organización. Avisale.
 
 ---
